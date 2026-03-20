@@ -112,6 +112,12 @@ class PlaylistTrackerWindow(QMainWindow):
         self.current_playlist_info = None
         self.current_playlist_id = None
         self.unread_album_ids = []
+        
+        # 启动时清理过期缓存
+        cleaned = self.storage.cleanup_expired_cache()
+        if cleaned > 0:
+            print(f"已清理 {cleaned} 个过期歌单缓存")
+        
         self.init_ui()
     
     def init_ui(self):
