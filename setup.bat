@@ -66,7 +66,7 @@ echo 依赖包安装成功。
 REM 验证安装
 echo.
 echo 正在验证安装...
-python -c "import PyQt5, pyncm, requests; print('所有依赖验证通过')" 2>nul
+python -c "import PyQt5, pyncm, requests, customtkinter; print('所有依赖验证通过')" 2>nul
 if errorlevel 1 (
     echo ❌ 依赖验证失败。
     pause

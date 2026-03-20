@@ -207,16 +207,28 @@ class PlaylistStorage:
             valid_keys = set()
             for k in album_details_dict.keys():
                 try:
-                    if k.isdigit():
+                    if isinstance(k, str) and k.isdigit():
                         valid_keys.add(int(k))
+                    elif isinstance(k, int):
+                        valid_keys.add(k)
                     else:
                         valid_keys.add(k)
                 except (ValueError, TypeError):
                     pass
             
+            # 确保 new_snapshot_set 和 valid_keys 类型一致
+            valid_album_ids = set()
+            for aid in new_snapshot_set:
+                if isinstance(aid, int):
+                    valid_album_ids.add(aid)
+                elif isinstance(aid, str) and aid.isdigit():
+                    valid_album_ids.add(int(aid))
+                else:
+                    valid_album_ids.add(aid)
+            
             playlist_data['album_details'] = {
                 k: v for k, v in album_details_dict.items()
-                if k in valid_keys and k in new_snapshot_set
+                if k in valid_keys and k in valid_album_ids
             }
         
         self._save_data()
@@ -264,15 +276,35 @@ class PlaylistStorage:
         # 构建专辑信息列表
         albums = []
         for album_id in album_snapshot:
-            # album_details 的 key 可能是 int 或 str，统一处理
-            key = str(album_id) if isinstance(album_id, int) else album_id
-            details = album_details.get(key, {})
-            albums.append({
-                'album_id': album_id,
-                'album_name': details.get('album_name', f'未知专辑 {album_id}'),
-                'artists': details.get('artists', []),
-                'link': details.get('link', '')
-            })
+            # album_details 的 key 可能是 int 或 str，尝试两种方式查找
+            details = None
+            if album_id in album_details:
+                details = album_details.get(album_id)
+            else:
+                # 尝试字符串形式
+                str_key = str(album_id) if isinstance(album_id, int) else album_id
+                if str_key in album_details:
+                    details = album_details.get(str_key)
+                else:
+                    # 尝试整数形式
+                    int_key = int(album_id) if isinstance(album_id, str) and album_id.isdigit() else album_id
+                    if int_key in album_details:
+                        details = album_details.get(int_key)
+            
+            if details:
+                albums.append({
+                    'album_id': album_id,
+                    'album_name': details.get('album_name', f'未知专辑 {album_id}'),
+                    'artists': details.get('artists', []),
+                    'link': details.get('link', '')
+                })
+            else:
+                albums.append({
+                    'album_id': album_id,
+                    'album_name': f'未知专辑 {album_id}',
+                    'artists': [],
+                    'link': ''
+                })
         
         return albums
     

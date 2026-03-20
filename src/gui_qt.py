@@ -237,6 +237,10 @@ class PlaylistTrackerWindow(QMainWindow):
         self.copy_button.clicked.connect(self.copy_selected_link)
         button_layout.addWidget(self.copy_button)
         
+        self.copy_name_button = QPushButton("复制专辑名")
+        self.copy_name_button.clicked.connect(self.copy_selected_album_name)
+        button_layout.addWidget(self.copy_name_button)
+        
         self.open_button = QPushButton("打开选中链接")
         self.open_button.clicked.connect(self.open_selected_link)
         button_layout.addWidget(self.open_button)
@@ -457,6 +461,19 @@ class PlaylistTrackerWindow(QMainWindow):
             clipboard = QApplication.clipboard()
             clipboard.setText(link_item.text())
             self.status_bar.showMessage("链接已复制到剪贴板")
+    
+    def copy_selected_album_name(self):
+        selected_items = self.album_table.selectedItems()
+        if not selected_items:
+            QMessageBox.warning(self, "警告", "请先选择一个专辑")
+            return
+        
+        row = selected_items[0].row()
+        name_item = self.album_table.item(row, 0)
+        if name_item:
+            clipboard = QApplication.clipboard()
+            clipboard.setText(name_item.text())
+            self.status_bar.showMessage("专辑名已复制到剪贴板")
     
     def open_selected_link(self):
         selected_items = self.album_table.selectedItems()

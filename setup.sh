@@ -64,7 +64,7 @@ echo "正在验证安装..."
 if python -c "import PyQt5, pyncm, requests; print('所有依赖验证通过')" 2>/dev/null; then
     echo "✅ 所有依赖验证通过。"
 else
-    echo "❌ 依赖验证失败。"
+    echo "❌ 依赖验证失败。请检查上方输出。"
     exit 1
 fi
 
